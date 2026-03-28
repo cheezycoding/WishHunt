@@ -57,39 +57,43 @@ export default function WatchlistPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-48px)] px-6 py-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-[calc(100vh-56px)]">
+      {/* Header */}
+      <div className="border-b border-zinc-900 px-6 py-6">
+        <div className="max-w-4xl mx-auto flex items-end justify-between gap-4">
           <div>
-            <h1 className="font-mono text-2xl font-bold text-white">WATCHLIST</h1>
-            <p className="font-mono text-xs text-zinc-600 mt-1 tracking-widest">
-              {items.length} ACTIVE ALERT{items.length !== 1 ? 'S' : ''}
+            <p className="font-mono text-[10px] text-zinc-700 tracking-widest mb-1">/02 — PRICE ALERTS</p>
+            <h1 className="font-sans font-bold text-white" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', lineHeight: 1.1 }}>
+              Watchlist
+            </h1>
+            <p className="font-sans text-sm text-zinc-600 mt-1">
+              {items.length} active alert{items.length !== 1 ? 's' : ''}
             </p>
           </div>
           <button
             onClick={() => router.push('/')}
-            className="font-mono text-xs tracking-widest px-4 py-2 border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-300 transition-colors rounded-sm"
+            className="font-sans text-sm font-medium px-4 py-2.5 border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300 transition-colors rounded-sm flex-shrink-0"
           >
-            + NEW SEARCH
+            + New search
           </button>
         </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-6 py-6">
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 border border-zinc-800 rounded-sm border-dashed">
-            <p className="font-mono text-xs text-zinc-600 tracking-widest">NO ACTIVE ALERTS</p>
-            <p className="font-mono text-xs text-zinc-700 mt-2">
-              Search for a product and set a price target
-            </p>
+          <div className="flex flex-col items-center justify-center h-64 border border-zinc-900 rounded-sm border-dashed">
+            <p className="font-sans text-sm text-zinc-600">No active alerts</p>
+            <p className="font-sans text-xs text-zinc-700 mt-1">Search for a product and set a price target</p>
             <button
               onClick={() => router.push('/')}
-              className="mt-6 font-mono text-xs tracking-widest px-4 py-2 bg-gold text-black hover:bg-amber-400 transition-colors rounded-sm"
+              className="mt-6 font-sans text-sm font-semibold px-5 py-2.5 bg-white text-black hover:bg-zinc-200 transition-colors rounded-sm"
             >
-              START SEARCHING →
+              Start hunting →
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="divide-y divide-zinc-900 border border-zinc-900 rounded-sm overflow-hidden">
             {items.map((item) => {
               const isTriggered = item.triggered || (
                 item.currentBestPrice !== undefined &&
@@ -108,96 +112,80 @@ export default function WatchlistPage() {
               return (
                 <div
                   key={item.id}
-                  className={`border rounded-sm bg-zinc-950 transition-all ${
-                    isTriggered
-                      ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(34,197,94,0.05)]'
-                      : 'border-zinc-800'
-                  }`}
+                  className={`bg-zinc-950 transition-all ${isTriggered ? 'border-l-2 border-l-white' : ''}`}
                 >
-                  {/* Card header — clickable to expand */}
+                  {/* Clickable header row */}
                   <div
-                    className="p-5 cursor-pointer select-none"
+                    className="px-5 py-5 cursor-pointer select-none hover:bg-[#111] transition-colors"
                     onClick={() => setExpanded(isOpen ? null : item.id)}
                   >
                     <div className="flex items-start justify-between gap-4">
                       {/* Left */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           {isTriggered && (
-                            <span className="font-mono text-xs text-emerald-500 border border-emerald-500/30 px-1.5 py-0.5 rounded-sm tracking-widest">
-                              TARGET HIT
+                            <span className="font-sans text-[10px] font-semibold text-white bg-white/10 border border-white/20 px-2 py-0.5 rounded-full">
+                              Target hit
                             </span>
                           )}
-                          <span className="font-mono text-xs text-zinc-600 tracking-widest">
+                          <span className="font-sans text-xs text-zinc-600">
                             {item.recipes.map((r) => r.platform).join(' · ')}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <h2 className="font-mono text-base font-bold text-white truncate">
+                        <div className="flex items-baseline gap-2">
+                          <h2 className="font-sans text-lg font-bold text-white truncate leading-tight">
                             {item.product.name}
                           </h2>
-                          <span className={`font-mono text-xs text-zinc-600 transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-                            ▾
-                          </span>
+                          <span className={`font-sans text-zinc-600 text-sm transition-transform inline-block ${isOpen ? 'rotate-180' : ''}`}>▾</span>
                         </div>
                         {item.product.brand && (
-                          <p className="font-mono text-xs text-zinc-500 mt-0.5">{item.product.brand}</p>
+                          <p className="font-sans text-xs text-zinc-600 mt-0.5">{item.product.brand}</p>
                         )}
                       </div>
 
-                      {/* Right: Price */}
-                      <div className="text-right flex-shrink-0">
-                        <div className="mb-3">
-                          <p className="font-mono text-xs text-zinc-600 tracking-widest mb-0.5">TARGET</p>
-                          <p className="font-mono text-xl font-bold text-gold">
-                            {fmt(item.targetPrice, item.currency)}
-                          </p>
+                      {/* Right: prices */}
+                      <div className="text-right flex-shrink-0 space-y-2">
+                        <div>
+                          <p className="font-sans text-xs text-zinc-600 mb-0.5">Target</p>
+                          <p className="font-mono text-xl font-bold text-white leading-none">{fmt(item.targetPrice, item.currency)}</p>
                         </div>
                         {item.currentBestPrice !== undefined && (
                           <div>
-                            <p className="font-mono text-xs text-zinc-600 tracking-widest mb-0.5">CURRENT BEST</p>
-                            <p className={`font-mono text-sm font-bold ${
-                              item.currentBestPrice <= item.targetPrice ? 'text-emerald-400' : 'text-zinc-300'
-                            }`}>
+                            <p className="font-sans text-xs text-zinc-600 mb-0.5">Current best</p>
+                            <p className={`font-mono text-sm font-bold leading-none ${item.currentBestPrice <= item.targetPrice ? 'text-white' : 'text-zinc-300'}`}>
                               {fmt(item.currentBestPrice, item.currency)}
                             </p>
                             {item.currentBestPlatform && (
-                              <p className="font-mono text-xs text-zinc-600">{item.currentBestPlatform}</p>
+                              <p className="font-sans text-xs text-zinc-600 mt-0.5">{item.currentBestPlatform}</p>
                             )}
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Footer */}
-                    <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <span className="font-mono text-xs text-zinc-700">
-                          CREATED {timeAgo(item.createdAt)}
-                        </span>
+                    {/* Footer row */}
+                    <div className="mt-4 pt-3 border-t border-zinc-900 flex items-center justify-between">
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <span className="font-sans text-xs text-zinc-700">Created {timeAgo(item.createdAt)}</span>
                         {item.lastChecked && (
-                          <span className="font-mono text-xs text-zinc-700">
-                            CHECKED {timeAgo(item.lastChecked)}
-                          </span>
+                          <span className="font-sans text-xs text-zinc-700">Checked {timeAgo(item.lastChecked)}</span>
                         )}
                         {listings.length > 0 && (
-                          <span className="font-mono text-xs text-zinc-700">
-                            {listings.length} LISTING{listings.length !== 1 ? 'S' : ''}
-                          </span>
+                          <span className="font-sans text-xs text-zinc-700">{listings.length} listing{listings.length !== 1 ? 's' : ''} saved</span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleRefresh(item)}
-                          className="font-mono text-xs text-zinc-600 hover:text-gold transition-colors tracking-widest"
+                          className="font-sans text-xs text-zinc-600 hover:text-white transition-colors"
                         >
-                          REFRESH ↗
+                          Refresh ↗
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="font-mono text-xs text-zinc-700 hover:text-red-400 transition-colors tracking-widest"
+                          className="font-sans text-xs text-zinc-700 hover:text-red-400 transition-colors"
                         >
-                          REMOVE
+                          Remove
                         </button>
                       </div>
                     </div>
@@ -205,39 +193,35 @@ export default function WatchlistPage() {
 
                   {/* Expanded: price grid */}
                   {isOpen && (
-                    <div className="border-t border-zinc-800 px-5 pb-5 pt-4">
+                    <div className="border-t border-zinc-900 px-5 pb-5 pt-4 bg-black/20 animate-slide-up">
                       {sorted.length === 0 ? (
-                        <p className="font-mono text-xs text-zinc-600 tracking-widest text-center py-6">
-                          NO LISTINGS SAVED · HIT REFRESH TO SCAN NOW
-                        </p>
+                        <div className="text-center py-8">
+                          <p className="font-sans text-sm text-zinc-600">No listings saved</p>
+                          <p className="font-sans text-xs text-zinc-700 mt-1">Hit Refresh ↗ to scan now</p>
+                        </div>
                       ) : (
                         <>
-                          <div className="flex items-center justify-between mb-4 gap-4">
-                            <span className="font-mono text-xs text-zinc-600 tracking-widest flex-shrink-0">
-                              {sorted.length} LISTING{sorted.length !== 1 ? 'S' : ''} · LAST SCAN {item.lastChecked ? timeAgo(item.lastChecked) : timeAgo(item.createdAt)}
+                          <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+                            <span className="font-sans text-xs text-zinc-600">
+                              {sorted.length} listing{sorted.length !== 1 ? 's' : ''} · Last scan {item.lastChecked ? timeAgo(item.lastChecked) : timeAgo(item.createdAt)}
                             </span>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1.5">
                               {(['price_asc', 'price_desc', 'platform', 'condition'] as const).map((opt) => (
                                 <button
                                   key={opt}
                                   onClick={(e) => { e.stopPropagation(); setSortBy(opt); }}
-                                  className={`font-mono text-xs px-2 py-1 rounded-sm tracking-widest transition-colors ${
-                                    sortBy === opt ? 'bg-zinc-800 text-zinc-200' : 'text-zinc-600 hover:text-zinc-400'
+                                  className={`font-sans text-xs px-3 py-1.5 rounded-full transition-colors ${
+                                    sortBy === opt ? 'bg-zinc-700 text-white' : 'text-zinc-600 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-600'
                                   }`}
                                 >
-                                  {opt === 'price_asc' ? 'PRICE ↑' : opt === 'price_desc' ? 'PRICE ↓' : opt.toUpperCase()}
+                                  {opt === 'price_asc' ? 'Price ↑' : opt === 'price_desc' ? 'Price ↓' : opt.charAt(0).toUpperCase() + opt.slice(1)}
                                 </button>
                               ))}
                             </div>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                             {sorted.map((listing, i) => (
-                              <PriceCard
-                                key={`${listing.platform}-${i}`}
-                                listing={listing}
-                                platform={listing.platform}
-                                rank={i + 1}
-                              />
+                              <PriceCard key={`${listing.platform}-${i}`} listing={listing} platform={listing.platform} rank={i + 1} />
                             ))}
                           </div>
                         </>
@@ -251,8 +235,8 @@ export default function WatchlistPage() {
         )}
 
         {items.length > 0 && (
-          <p className="font-mono text-xs text-zinc-700 text-center mt-8">
-            Prices are checked every 12 hours · Use REFRESH ↗ to re-scan now
+          <p className="font-sans text-xs text-zinc-800 text-center mt-8">
+            Prices checked every 12 hours · Use Refresh ↗ to re-scan now
           </p>
         )}
       </div>

@@ -12,7 +12,9 @@ const config: Config = {
         gold: '#d4a017',
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+        mono: ['var(--font-jetbrains)', 'JetBrains Mono', 'Fira Code', 'monospace'],
+        sans: ['var(--font-space)', 'system-ui', 'sans-serif'],
+        script: ['Sakire', 'serif'],
       },
     },
   },

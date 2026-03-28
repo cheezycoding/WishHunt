@@ -7,29 +7,28 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-sm">
-      <div className="mx-auto max-w-7xl px-6 flex items-center justify-between h-12">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-mono text-sm font-bold tracking-widest text-gold">WISH</span>
-          <span className="font-mono text-sm font-bold tracking-widest text-zinc-400">HUNT</span>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-zinc-900">
+      <div className="mx-auto max-w-7xl px-6 flex items-center justify-between h-14">
+        <Link href="/" className="font-sans font-semibold text-lg tracking-tight text-white">
+          WishHunt
         </Link>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           <Link
             href="/"
-            className={`font-mono text-xs tracking-wider transition-colors ${
-              pathname === '/' ? 'text-gold' : 'text-zinc-500 hover:text-zinc-300'
+            className={`font-sans text-sm transition-colors ${
+              pathname === '/' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            SEARCH
+            Search
           </Link>
           <Link
             href="/watchlist"
-            className={`font-mono text-xs tracking-wider transition-colors ${
-              pathname === '/watchlist' ? 'text-gold' : 'text-zinc-500 hover:text-zinc-300'
+            className={`font-sans text-sm transition-colors ${
+              pathname === '/watchlist' ? 'text-white font-medium' : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            WATCHLIST
+            Watchlist
           </Link>
         </div>
       </div>
