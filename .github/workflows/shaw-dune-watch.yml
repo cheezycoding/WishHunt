@@ -1,0 +1,57 @@
+name: Shaw Dune ticketing watch
+
+# Polls Shaw's public listing for movieReleaseId 2106 (Dune IMAX reissue,
+# release 2026-12-03). When advance sales open (or the movie reaches the
+# now-showing list) it opens an issue assigned to the owner (GitHub emails
+# them) and then disables this workflow.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Shaw listing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          BASE="https://snow-pwsm-legacy.sice.tech"
+          curl -fsS --retry 3 -m 30 -A "Mozilla/5.0" "$BASE/get_coming_soon_movies?movieBrand=SHAW" -o coming.json
+          curl -fsS --retry 3 -m 30 -A "Mozilla/5.0" "$BASE/get_simple_top_movies?movieBrand=SHAW" -o top.json
+
+          RESULT=$(python3 - <<'PY'
+          import json
+          coming = json.load(open("coming.json"))
+          top = open("top.json").read()
+          m = next((x for x in coming if x.get("movieReleaseId") == 2106), None)
+          reasons = []
+          if m is None:
+              reasons.append("no longer in coming-soon list (may have moved to now showing)")
+          else:
+              if m.get("isAdvanceSales"):
+                  reasons.append("isAdvanceSales is true")
+              if m.get("salesStartOn"):
+                  reasons.append("salesStartOn = %s" % m["salesStartOn"])
+          if '"movieReleaseId":2106' in top.replace(" ", "") or '"id":2106' in top.replace(" ", ""):
+              reasons.append("listed in now-showing")
+          print("; ".join(reasons))
+          PY
+          )
+          echo "result: [$RESULT]"
+          if [ -n "$RESULT" ]; then
+            gh issue create \
+              --title "Dune (IMAX) tickets are out / announced" \
+              --assignee cheezycoding \
+              --body "@cheezycoding Shaw ticketing for Dune (IMAX reissue) changed: $RESULT. Book here: https://shaw.sg/movie-details/2106"
+            gh workflow disable shaw-dune-watch.yml
+          fi
