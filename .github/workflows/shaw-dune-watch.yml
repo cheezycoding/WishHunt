@@ -4,11 +4,22 @@ name: Shaw Dune ticketing watch
 # release 2026-12-03). When advance sales open (or the movie reaches the
 # now-showing list) it opens an issue assigned to the owner (GitHub emails
 # them) and then disables this workflow.
+#
+# For testing: run manually with another movie_id. dry_run=true only prints
+# the result; dry_run=false opens a [TEST] issue but never disables the watcher.
 
 on:
   schedule:
     - cron: "*/10 * * * *"
   workflow_dispatch:
+    inputs:
+      movie_id:
+        description: "Shaw movieReleaseId to check"
+        default: "2106"
+      dry_run:
+        description: "Only print the result, do not open an issue"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -23,6 +34,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          MOVIE_ID: ${{ github.event.inputs.movie_id || '2106' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
           set -euo pipefail
           BASE="https://snow-pwsm-legacy.sice.tech"
@@ -30,10 +43,11 @@ jobs:
           curl -fsS --retry 3 -m 30 -A "Mozilla/5.0" "$BASE/get_simple_top_movies?movieBrand=SHAW" -o top.json
 
           RESULT=$(python3 - <<'PY'
-          import json
+          import json, os
+          mid = int(os.environ["MOVIE_ID"])
           coming = json.load(open("coming.json"))
-          top = open("top.json").read()
-          m = next((x for x in coming if x.get("movieReleaseId") == 2106), None)
+          top = json.load(open("top.json"))
+          m = next((x for x in coming if x.get("movieReleaseId") == mid), None)
           reasons = []
           if m is None:
               reasons.append("no longer in coming-soon list (may have moved to now showing)")
@@ -42,16 +56,24 @@ jobs:
                   reasons.append("isAdvanceSales is true")
               if m.get("salesStartOn"):
                   reasons.append("salesStartOn = %s" % m["salesStartOn"])
-          if '"movieReleaseId":2106' in top.replace(" ", "") or '"id":2106' in top.replace(" ", ""):
-              reasons.append("listed in now-showing")
+          t = next((x for x in top if x.get("movieReleaseId") == mid), None)
+          if t:
+              reasons.append("listed in now-showing as %s" % t.get("primaryTitle"))
           print("; ".join(reasons))
           PY
           )
-          echo "result: [$RESULT]"
-          if [ -n "$RESULT" ]; then
+          echo "movie $MOVIE_ID result: [$RESULT]"
+          if [ -n "$RESULT" ] && [ "$DRY_RUN" != "true" ]; then
+            if [ "$MOVIE_ID" = "2106" ]; then
+              TITLE="Dune (IMAX) tickets are out / announced"
+            else
+              TITLE="[TEST] Shaw movie $MOVIE_ID changed"
+            fi
             gh issue create \
-              --title "Dune (IMAX) tickets are out / announced" \
+              --title "$TITLE" \
               --assignee cheezycoding \
-              --body "@cheezycoding Shaw ticketing for Dune (IMAX reissue) changed: $RESULT. Book here: https://shaw.sg/movie-details/2106"
-            gh workflow disable shaw-dune-watch.yml
+              --body "@cheezycoding Shaw ticketing changed for movie $MOVIE_ID: $RESULT. Book here: https://shaw.sg/movie-details/$MOVIE_ID"
+            if [ "$MOVIE_ID" = "2106" ]; then
+              gh workflow disable shaw-dune-watch.yml
+            fi
           fi
